@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinTrack — Visualisasi Pengeluaran &amp; Anggaran</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sidebar" id="sidebar" aria-label="Navigasi utama">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="36" rx="11" fill="url(#lg1)"/>
+          <path d="M9 22h4v5H9v-5zm6-7h4v12h-4V15zm6-5h4v17h-4V10z" fill="#fff" opacity=".95"/>
+          <defs>
+            <linearGradient id="lg1" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">FinTrack</span>
+        <span class="brand-tagline">Pelacak Keuangan</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Menu utama">
+      <a href="#" class="nav-item active">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </span>
+        <span class="nav-label">Dasbor</span>
+      </a>
+      <a href="#form-section" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+          </svg>
+        </span>
+        <span class="nav-label">Tambah Transaksi</span>
+      </a>
+      <a href="#chart-section" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Grafik</span>
+      </a>
+      <a href="#transactions-section" class="nav-item">
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>
+          </svg>
+        </span>
+        <span class="nav-label">Transaksi</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <button class="theme-toggle" id="themeToggle" aria-label="Ganti mode gelap/terang">
+        <span class="theme-toggle-icon">🌙</span>
+        <span class="theme-toggle-label">Mode Gelap</span>
+        <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+      </button>
+    </div>
+
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="main-wrapper">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar-menu-btn" id="menuBtn" aria-label="Buka menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-center">
+        <h1 class="topbar-title">Dasbor Keuangan</h1>
+        <p class="topbar-date" id="currentDate"></p>
+      </div>
+      <button class="topbar-theme-btn" id="themeToggleMobile" aria-label="Ganti tema">
+        <span id="mobileThemeIcon">🌙</span>
+      </button>
+    </header>
+
+    <main class="app-main">
+
+      <!-- ── STAT CARDS ── -->
+      <section class="stats-grid" aria-label="Ringkasan keuangan">
+
+        <div class="stat-card s-balance">
+          <div class="stat-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <p class="stat-label">Total Saldo</p>
+            <p class="stat-value" id="totalBalance">RM 0.00</p>
+          </div>
+          <div class="stat-blob"></div>
+        </div>
+
+        <div class="stat-card s-income">
+          <div class="stat-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <p class="stat-label">Total Pemasukan</p>
+            <p class="stat-value" id="totalIncome">RM 0.00</p>
+          </div>
+          <div class="stat-blob"></div>
+        </div>
+
+        <div class="stat-card s-expense">
+          <div class="stat-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <p class="stat-label">Total Pengeluaran</p>
+            <p class="stat-value" id="totalExpense">RM 0.00</p>
+          </div>
+          <div class="stat-blob"></div>
+        </div>
+
+        <div class="stat-card s-count">
+          <div class="stat-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="stat-body">
+            <p class="stat-label">Jumlah Transaksi</p>
+            <p class="stat-value" id="totalCount">0</p>
+          </div>
+          <div class="stat-blob"></div>
+        </div>
+
+      </section>
+
+      <!-- ── ADD TRANSACTION ── -->
+      <section class="card" id="form-section" aria-label="Tambah transaksi">
+        <div class="card-header">
+          <div class="card-header-icon icon-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">Tambah Transaksi</h2>
+            <p class="card-desc">Catat pemasukan atau pengeluaran baru</p>
+          </div>
+        </div>
+
+        <!-- Type Pill Toggle -->
+        <div class="type-row">
+          <div class="type-toggle" role="group" aria-label="Jenis transaksi">
+            <button class="type-btn active" data-type="expense" id="btnExpense">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+              </svg>
+              Pengeluaran
+            </button>
+            <button class="type-btn" data-type="income" id="btnIncome">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+              </svg>
+              Pemasukan
+            </button>
+          </div>
+        </div>
+
+        <!-- Fields -->
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label class="field-lbl" for="itemName">Nama Item</label>
+            <div class="field-wrap">
+              <span class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"/>
+                  <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"/>
+                </svg>
+              </span>
+              <input type="text" id="itemName" class="field-input" placeholder="cth. Makan siang, Ongkos bus…" maxlength="60" autocomplete="off" />
+            </div>
+            <span class="field-error" id="itemNameError"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="field-lbl" for="amount">Jumlah (RM)</label>
+            <div class="field-wrap">
+              <span class="field-icon field-prefix">RM</span>
+              <input type="number" id="amount" class="field-input with-prefix" placeholder="0.00" min="0.01" step="0.01" />
+            </div>
+            <span class="field-error" id="amountError"></span>
+          </div>
+
+          <div class="form-field">
+            <label class="field-lbl" for="category">Kategori</label>
+            <div class="field-wrap field-select-wrap">
+              <span class="field-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                </svg>
+              </span>
+              <select id="category" class="field-input field-select">
+                <option value="">— Pilih Kategori —</option>
+                <option value="Food">🍔 Makanan</option>
+                <option value="Transport">🚌 Transportasi</option>
+                <option value="Fun">🎉 Hiburan</option>
+              </select>
+              <span class="select-caret">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </span>
+            </div>
+            <span class="field-error" id="categoryError"></span>
+          </div>
+
+          <div class="form-field form-field-action">
+            <button class="btn-primary" id="addTransactionBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              Tambah Transaksi
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Custom Category Panel -->
+        <div class="custom-panel" id="customCategoryRow" style="display:none;">
+          <div class="custom-panel-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            Tambah Kategori Kustom
+          </div>
+          <div class="custom-panel-body">
+            <label class="field-lbl" for="customCategoryInput">Nama Kategori</label>
+            <div class="custom-row">
+              <div class="field-wrap" style="flex:1">
+                <input type="text" id="customCategoryInput" class="field-input" style="padding-left:.9rem" placeholder="cth. Kesehatan, Belanja…" maxlength="30" />
+              </div>
+              <button class="btn-outline" id="addCustomCategoryBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Tambah
+              </button>
+            </div>
+            <span class="field-error" id="customCatError"></span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn-ghost" id="toggleCustomCategory">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+            </svg>
+            <span id="customCatBtnLabel">＋ Kategori Kustom</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ── CHART + TRANSACTIONS ── -->
+      <div class="bottom-grid">
+
+        <!-- Chart -->
+        <section class="card chart-card" id="chart-section" aria-label="Pengeluaran per kategori">
+          <div class="card-header">
+            <div class="card-header-icon icon-violet">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Pengeluaran per Kategori</h2>
+              <p class="card-desc">Diagram berdasarkan pengeluaran</p>
+            </div>
+          </div>
+
+          <div class="chart-zone">
+            <div class="chart-container">
+              <canvas id="expenseChart" aria-label="Diagram lingkaran pengeluaran per kategori"></canvas>
+              <div class="chart-placeholder" id="chartEmpty">
+                <div class="chart-placeholder-ring"></div>
+                <p>Belum ada data<br/>pengeluaran.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-legend" id="chartLegend"></div>
+        </section>
+
+        <!-- Transactions -->
+        <section class="card" id="transactions-section" aria-label="Daftar transaksi">
+          <div class="card-header tx-header">
+            <div style="display:flex;align-items:center;gap:.7rem">
+              <div class="card-header-icon icon-teal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div>
+                <h2 class="card-title">Riwayat Transaksi</h2>
+                <p class="card-desc" id="txSubtitle">0 transaksi tercatat</p>
+              </div>
+            </div>
+            <div class="sort-control">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/>
+              </svg>
+              <select id="sortSelect" class="sort-select" aria-label="Urutkan transaksi">
+                <option value="date-desc">Terbaru Dulu</option>
+                <option value="date-asc">Terlama Dulu</option>
+                <option value="amount-desc">Jumlah ↓</option>
+                <option value="amount-asc">Jumlah ↑</option>
+                <option value="category-asc">Kategori A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="tx-list" id="transactionList" role="list">
+            <!-- populated by JS -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Dibuat dengan ❤️ &mdash; data disimpan secara lokal di browser Anda.</p>
+    </footer>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
